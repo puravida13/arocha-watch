@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arocha Design | Official Watch Registry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --card-bg: #14181d;
+      --card-border: #242b35;
+      --accent: #d4af37;
+      --accent-glow: rgba(212, 175, 55, 0.18);
+      --text: #e8ecf2;
+      --text-muted: #8c97a7;
+      --cyan-mil: #00e1d9;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 680px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+    .brand-mark {
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      letter-spacing: 6px;
+      color: var(--text);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .search-box {
+      position: relative;
+      margin-bottom: 30px;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .btn-search {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      bottom: 8px;
+      background: var(--accent);
+      color: #0d0f12;
+      border: none;
+      border-radius: 6px;
+      padding: 0 18px;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+    }
+    .btn-search:hover { opacity: 0.9; }
+
+    /* Result Card */
+    .certificate {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .certificate::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .cert-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    .cert-title {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .cert-sn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--cyan-mil);
+      margin-top: 4px;
+    }
+    .badge-status {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      background: rgba(0, 225, 217, 0.1);
+      border: 1px solid var(--cyan-mil);
+      color: var(--cyan-mil);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .spec-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .spec-val {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .notes-box {
+      background: #0d1014;
+      border-radius: 6px;
+      padding: 14px;
+      border: 1px dashed var(--card-border);
+    }
+    .notes-box .spec-label { margin-bottom: 4px; }
+    .notes-box p { font-size: 13px; line-height: 1.5; color: #b0bac8; }
+    .cert-footer {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .not-found {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      background: var(--card-bg);
+      border: 1px dashed var(--card-border);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand-mark">AROCHA</div>
+      <div class="brand-sub">Registry & Provenance System</div>
+    </header>
+
+    <div class="search-box">
+      <input type="text" id="snInput" class="search-input" placeholder="Enter Serial (e.g. AD-26253-01)..." />
+      <button class="btn-search" onclick="lookupSerial()">Verify</button>
+    </div>
+
+    <!-- Found Verification Card -->
+    <div id="certCard" class="certificate">
+      <div class="cert-header">
+        <div>
+          <div class="cert-title">Official Manufacture Record</div>
+          <div id="outSN" class="cert-sn">AD-26253-01</div>
+        </div>
+        <div class="badge-status">Authentic Build</div>
+      </div>
+
+      <div class="spec-grid">
+        <div class="spec-item">
+          <div class="spec-label">Model Designation</div>
+          <div id="outModel" class="spec-val">-</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Movement Platform</div>
+          <div id="outCalibre" class="spec-val">-</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Build Date</div>
+          <div id="outDate" class="spec-val">-</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Case Specification</div>
+          <div id="outCase" class="spec-val">-</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Dial Architecture</div>
+          <div id="outDial" class="spec-val">-</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Bezel Configuration</div>
+          <div id="outBezel" class="spec-val">-</div>
+        </div>
+      </div>
+
+      <div class="notes-box">
+        <div class="spec-label">Bench Master Notes</div>
+        <p id="outNotes">-</p>
+      </div>
+
+      <div class="cert-footer">
+        <span>Arocha Design Bench Registry</span>
+        <span>Verified ID</span>
+      </div>
+    </div>
+
+    <!-- Not Found Card -->
+    <div id="notFoundCard" class="not-found">
+      <p style="font-size: 15px; margin-bottom: 6px; color: #ff5555;">No Record Found</p>
+      <p style="font-size: 12px;">This serial number has not been registered in the manufacture database.</p>
+    </div>
+  </div>
+
+  <script>
+    let registryData = [];
+
+    // Load static database
+    fetch('registry.json')
+      .then(res => res.json())
+      .then(data => {
+        registryData = data;
+      })
+      .catch(err => console.error("Could not load registry:", err));
+
+    function lookupSerial() {
+      const query = document.getElementById('snInput').value.trim().toUpperCase();
+      const certCard = document.getElementById('certCard');
+      const notFoundCard = document.getElementById('notFoundCard');
+
+      if (!query) return;
+
+      const record = registryData.find(item => item.serial_number.toUpperCase() === query);
+
+      if (record) {
+        document.getElementById('outSN').textContent = record.serial_number;
+        document.getElementById('outModel').textContent = record.model_name;
+        document.getElementById('outCalibre').textContent = record.calibre;
+        document.getElementById('outDate').textContent = record.build_date;
+        document.getElementById('outCase').textContent = record.case_material;
+        document.getElementById('outDial').textContent = record.dial_type;
+        document.getElementById('outBezel').textContent = record.bezel_type;
+        document.getElementById('outNotes').textContent = record.notes || 'None';
+
+        notFoundCard.style.display = 'none';
+        certCard.style.display = 'block';
+      } else {
+        certCard.style.display = 'none';
+        notFoundCard.style.display = 'block';
+      }
+    }
+
+    // Enter key support
+    document.getElementById('snInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') lookupSerial();
+    });
+  </script>
+</body>
+</html>
