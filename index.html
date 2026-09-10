@@ -35,7 +35,8 @@
     }
     header {
       text-align: center;
-      margin-bottom: 35px;
+      margin-bottom: 25px;
+      position: relative;
     }
     .brand-mark {
       font-family: 'Cinzel', serif;
@@ -52,32 +53,49 @@
       text-transform: uppercase;
       font-weight: 600;
     }
+    .top-nav {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 15px;
+    }
+    .nav-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    .nav-btn.active, .nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
     .search-box {
       position: relative;
       margin-bottom: 30px;
     }
-    .search-input {
+    .search-input, .form-input, .form-textarea {
       width: 100%;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 8px;
-      padding: 16px 20px;
+      padding: 14px 18px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 16px;
+      font-size: 15px;
       color: var(--text);
       outline: none;
       transition: all 0.2s ease;
-      text-transform: uppercase;
     }
-    .search-input:focus {
+    .search-input { text-transform: uppercase; font-size: 16px; padding: 16px 20px; }
+    .search-input:focus, .form-input:focus, .form-textarea:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 20px var(--accent-glow);
+      box-shadow: 0 0 15px var(--accent-glow);
     }
-    .btn-search {
-      position: absolute;
-      right: 8px;
-      top: 8px;
-      bottom: 8px;
+    .btn-action {
       background: var(--accent);
       color: #0d0f12;
       border: none;
@@ -90,11 +108,16 @@
       text-transform: uppercase;
       transition: opacity 0.2s;
     }
-    .btn-search:hover { opacity: 0.9; }
+    .btn-action:hover { opacity: 0.9; }
+    .btn-search {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      bottom: 8px;
+    }
 
-    /* Result Card */
-    .certificate {
-      display: none;
+    /* Verification Card */
+    .certificate, .form-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
@@ -102,8 +125,10 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       position: relative;
       overflow: hidden;
+      margin-bottom: 30px;
     }
-    .certificate::before {
+    .certificate { display: none; }
+    .certificate::before, .form-card::before {
       content: "";
       position: absolute;
       top: 0; left: 0; right: 0;
@@ -192,6 +217,72 @@
       border: 1px dashed var(--card-border);
       border-radius: 10px;
     }
+
+    /* Form Styles */
+    #adminSection { display: none; }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .generated-badge {
+      background: #091319;
+      border: 1px solid var(--cyan-mil);
+      padding: 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--cyan-mil);
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .export-box {
+      margin-top: 20px;
+      padding: 16px;
+      background: #090b0e;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      display: none;
+    }
+    .export-box pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #7ce38b;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    .export-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -199,78 +290,197 @@
     <header>
       <div class="brand-mark">AROCHA</div>
       <div class="brand-sub">Registry & Provenance System</div>
+      <div class="top-nav">
+        <button class="nav-btn active" id="tabSearch" onclick="showView('search')">Search Registry</button>
+        <button class="nav-btn" id="tabAdd" onclick="showView('add')">+ Add Build</button>
+      </div>
     </header>
 
-    <div class="search-box">
-      <input type="text" id="snInput" class="search-input" placeholder="Enter Serial (e.g. AD-26253-01)..." />
-      <button class="btn-search" onclick="lookupSerial()">Verify</button>
+    <!-- VIEW 1: SEARCH / LOOKUP -->
+    <div id="searchSection">
+      <div class="search-box">
+        <input type="text" id="snInput" class="search-input" placeholder="Enter Serial (e.g. AD-26253-01)..." />
+        <button class="btn-action btn-search" onclick="lookupSerial()">Verify</button>
+      </div>
+
+      <!-- Found Verification Card -->
+      <div id="certCard" class="certificate">
+        <div class="cert-header">
+          <div>
+            <div class="cert-title">Official Manufacture Record</div>
+            <div id="outSN" class="cert-sn">AD-26253-01</div>
+          </div>
+          <div class="badge-status">Authentic Build</div>
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-item">
+            <div class="spec-label">Model Designation</div>
+            <div id="outModel" class="spec-val">-</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Movement Platform</div>
+            <div id="outCalibre" class="spec-val">-</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Build Date</div>
+            <div id="outDate" class="spec-val">-</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Case Specification</div>
+            <div id="outCase" class="spec-val">-</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Dial Architecture</div>
+            <div id="outDial" class="spec-val">-</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Bezel Configuration</div>
+            <div id="outBezel" class="spec-val">-</div>
+          </div>
+        </div>
+
+        <div class="notes-box">
+          <div class="spec-label">Bench Master Notes</div>
+          <p id="outNotes">-</p>
+        </div>
+
+        <div class="cert-footer">
+          <span>Arocha Design Bench Registry</span>
+          <span>Verified ID</span>
+        </div>
+      </div>
+
+      <!-- Not Found Card -->
+      <div id="notFoundCard" class="not-found">
+        <p style="font-size: 15px; margin-bottom: 6px; color: #ff5555;">No Record Found</p>
+        <p style="font-size: 12px;">This serial number has not been registered in the manufacture database.</p>
+      </div>
     </div>
 
-    <!-- Found Verification Card -->
-    <div id="certCard" class="certificate">
-      <div class="cert-header">
-        <div>
-          <div class="cert-title">Official Manufacture Record</div>
-          <div id="outSN" class="cert-sn">AD-26253-01</div>
-        </div>
-        <div class="badge-status">Authentic Build</div>
-      </div>
+    <!-- VIEW 2: ADD NEW BUILD FORM -->
+    <div id="adminSection">
+      <div class="form-card">
+        <div class="cert-title" style="margin-bottom: 12px;">New Bench Record Creation</div>
+        <div class="generated-badge" id="previewSN">AD-26253-01</div>
 
-      <div class="spec-grid">
-        <div class="spec-item">
-          <div class="spec-label">Model Designation</div>
-          <div id="outModel" class="spec-val">-</div>
-        </div>
-        <div class="spec-item">
-          <div class="spec-label">Movement Platform</div>
-          <div id="outCalibre" class="spec-val">-</div>
-        </div>
-        <div class="spec-item">
-          <div class="spec-label">Build Date</div>
-          <div id="outDate" class="spec-val">-</div>
-        </div>
-        <div class="spec-item">
-          <div class="spec-label">Case Specification</div>
-          <div id="outCase" class="spec-val">-</div>
-        </div>
-        <div class="spec-item">
-          <div class="spec-label">Dial Architecture</div>
-          <div id="outDial" class="spec-val">-</div>
-        </div>
-        <div class="spec-item">
-          <div class="spec-label">Bezel Configuration</div>
-          <div id="outBezel" class="spec-val">-</div>
+        <form id="newBuildForm" onsubmit="handleFormSubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Build Date</label>
+              <input type="date" id="inDate" class="form-input" required onchange="updateSerialPreview()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Daily Unit Index</label>
+              <input type="number" id="inIndex" class="form-input" min="1" max="99" value="1" required onchange="updateSerialPreview()" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Model Name</label>
+              <input type="text" id="inModel" class="form-input" placeholder="e.g. GMT-Master Homage" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Movement / Calibre</label>
+              <input type="text" id="inCalibre" class="form-input" placeholder="e.g. Seiko TMI NH34 GMT" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Dial Specification</label>
+              <input type="text" id="inDial" class="form-input" placeholder="e.g. 28.5mm Matte Black w/ Silver Applique" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bezel Configuration</label>
+              <input type="text" id="inBezel" class="form-input" placeholder="e.g. Dual-Tone Ceramic 24H" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Case Material & Architecture</label>
+            <input type="text" id="inCase" class="form-input" placeholder="e.g. 316L Stainless Steel 40mm, Sapphire Crystal" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Bench Master Notes & Regulation</label>
+            <textarea id="inNotes" class="form-textarea" rows="3" placeholder="e.g. Regulated to +2 s/d, custom military spec engraved oscillating weight."></textarea>
+          </div>
+
+          <button type="submit" class="btn-action btn-submit">+ Add Build To Registry</button>
+        </form>
+
+        <!-- JSON Output & Sync Block -->
+        <div id="exportArea" class="export-box">
+          <div class="spec-label" style="color: #7ce38b; margin-bottom: 8px;">Build Registered! Updated registry.json:</div>
+          <pre id="jsonPreview"></pre>
+          <div class="export-actions">
+            <button class="btn-secondary" onclick="downloadJSON()">Download registry.json</button>
+            <button class="btn-secondary" onclick="copyJSON()">Copy to Clipboard</button>
+          </div>
         </div>
       </div>
-
-      <div class="notes-box">
-        <div class="spec-label">Bench Master Notes</div>
-        <p id="outNotes">-</p>
-      </div>
-
-      <div class="cert-footer">
-        <span>Arocha Design Bench Registry</span>
-        <span>Verified ID</span>
-      </div>
-    </div>
-
-    <!-- Not Found Card -->
-    <div id="notFoundCard" class="not-found">
-      <p style="font-size: 15px; margin-bottom: 6px; color: #ff5555;">No Record Found</p>
-      <p style="font-size: 12px;">This serial number has not been registered in the manufacture database.</p>
     </div>
   </div>
 
   <script>
     let registryData = [];
 
-    // Load static database
+    // Set default date to today
+    document.getElementById('inDate').value = new Date().toISOString().split('T')[0];
+
+    // Load registry from file
     fetch('registry.json')
       .then(res => res.json())
       .then(data => {
         registryData = data;
+        updateSerialPreview();
       })
-      .catch(err => console.error("Could not load registry:", err));
+      .catch(err => {
+        console.warn("registry.json not loaded yet, using fallback array.", err);
+        registryData = [];
+        updateSerialPreview();
+      });
+
+    function showView(view) {
+      if (view === 'search') {
+        document.getElementById('searchSection').style.display = 'block';
+        document.getElementById('adminSection').style.display = 'none';
+        document.getElementById('tabSearch').classList.add('active');
+        document.getElementById('tabAdd').classList.remove('active');
+      } else {
+        document.getElementById('searchSection').style.display = 'none';
+        document.getElementById('adminSection').style.display = 'block';
+        document.getElementById('tabSearch').classList.remove('active');
+        document.getElementById('tabAdd').classList.add('active');
+        updateSerialPreview();
+      }
+    }
+
+    function calculateJulianDay(dateObj) {
+      const start = new Date(dateObj.getFullYear(), 0, 0);
+      const diff = dateObj - start;
+      const oneDay = 1000 * 60 * 60 * 24;
+      return Math.floor(diff / oneDay);
+    }
+
+    function computeSerial(dateStr, idx) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const year = String(d.getFullYear()).slice(-2);
+      const jDay = String(calculateJulianDay(d)).padStart(3, '0');
+      const unitIdx = String(idx).padStart(2, '0');
+      return `AD-${year}${jDay}-${unitIdx}`;
+    }
+
+    function updateSerialPreview() {
+      const dateVal = document.getElementById('inDate').value;
+      const idxVal = document.getElementById('inIndex').value || 1;
+      if (dateVal) {
+        const sn = computeSerial(dateVal, idxVal);
+        document.getElementById('previewSN').textContent = `Target Serial: ${sn}`;
+      }
+    }
 
     function lookupSerial() {
       const query = document.getElementById('snInput').value.trim().toUpperCase();
@@ -299,7 +509,55 @@
       }
     }
 
-    // Enter key support
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const dateVal = document.getElementById('inDate').value;
+      const idxVal = parseInt(document.getElementById('inIndex').value) || 1;
+      const sn = computeSerial(dateVal, idxVal);
+
+      const newRecord = {
+        serial_number: sn,
+        model_name: document.getElementById('inModel').value.trim(),
+        calibre: document.getElementById('inCalibre').value.trim(),
+        build_date: dateVal,
+        dial_type: document.getElementById('inDial').value.trim(),
+        bezel_type: document.getElementById('inBezel').value.trim(),
+        case_material: document.getElementById('inCase').value.trim(),
+        notes: document.getElementById('inNotes').value.trim()
+      };
+
+      // Add to beginning of local array
+      const existingIdx = registryData.findIndex(r => r.serial_number === sn);
+      if (existingIdx >= 0) {
+        registryData[existingIdx] = newRecord;
+      } else {
+        registryData.unshift(newRecord);
+      }
+
+      // Show formatted JSON
+      const jsonStr = JSON.stringify(registryData, null, 2);
+      document.getElementById('jsonPreview').textContent = jsonStr;
+      document.getElementById('exportArea').style.display = 'block';
+      alert(`Build ${sn} added to local session! Download or copy the updated registry.json below to commit to GitHub.`);
+    }
+
+    function downloadJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(registryData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "registry.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function copyJSON() {
+      const text = document.getElementById('jsonPreview').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied updated registry.json to clipboard!");
+      });
+    }
+
     document.getElementById('snInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') lookupSerial();
     });
